@@ -6,13 +6,31 @@ class User < ApplicationRecord
                     format: { with: VALID_EMAIL_REGEX },
                     uniqueness: true
     has_secure_password
-    validates :password, presence: true, length: { minimum: 6 }
-
+    validates :password, presence: true, length: { minimum: 6 }, allow_nil: true
+  
     # 渡された文字列のハッシュ値を返す
   def User.digest(string)
     cost = ActiveModel::SecurePassword.min_cost ? BCrypt::Engine::MIN_COST :
                                                   BCrypt::Engine.cost
     BCrypt::Password.create(string, cost: cost)
+  end
+
+  # ランダムなトークンを返す（★これが足りていないメソッドです！）
+  def User.new_token
+    SecureRandom.urlsafe_base64
+  end
+
+  # 永続セッションのためにユーザーをデータベースに記憶する
+  def remember
+    # 9章を飛ばしている間は中身を空っぽにする（または行頭に#をつける）
+    # self.remember_token = User.new_token
+    # update_attribute(:remember_digest, User.digest(remember_token))
+  end
+
+  # セッションハイジャック防止のためのセッションのトークンを返す
+  def session_token
+    # remember_digest || remember  コメントアウトして、代わりに以下を記述
+    remember_digest ? remember_digest : nil
   end
 end
 
