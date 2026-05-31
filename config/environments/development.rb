@@ -81,4 +81,16 @@ Rails.application.configure do
   config.hosts << pf_host
 
   config.action_cable.allowed_request_origins = ["https://#{pf_host}"]
+
+  # Make template changes take effect immediately.
+  config.action_mailer.perform_caching = false
+
+  # GitHub Codespaces環境のホスト名を自動で取得して設定します
+  if ENV['CODESPACE_NAME'].present?
+    host = "#{ENV['CODESPACE_NAME']}-3000.app.github.dev"
+  else
+    host = 'localhost:3000' # ローカル環境に戻したときのフォールバック用
+  end
+
+  config.action_mailer.default_url_options = { host: host, protocol: 'https' }
 end
